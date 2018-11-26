@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        .score {
+            color: red;
+            margin: 5px;
+            padding: 5px;
+        }
+
+        * {
+            padding: 0;
+            margin: 0;
+        }
+
+        canvas {
+            background: #eee;
+            display: block;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+<body>
+<center>
+
+    <h1 id="scored" class="score"></h1>
+
+</center>
+<canvas id="myCanvas" width="500" height="450">
+
+</canvas>
+<script>
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+    var dx = 1;
+    var dy = -1;
+    var rightPressed = false;
+    var leftPressed = false;
+    var speed = 30;
+    var score = 0;
+
+    ///////////////phim di chuyen thanh bar//////////////////
+    document.addEventListener("keydown", keyDown, false);
+    document.addEventListener("keyup", keyUp, false);
+
+    function keyDown(e) {
+        if (e.keyCode == 39) {
+            rightPressed = true;
+        }
+        if (e.keyCode == 37) {
+            leftPressed = true;
+        }
+    }
+
+    function keyUp(e) {
+        if (e.keyCode == 39) {
+            rightPressed = false;
+        }
+        else if (e.keyCode == 37) {
+            leftPressed = false;
+        }
+    }
+
+    var Ball = function (x, y, r) {
+        this.ballX = x;
+        this.ballY = y;
+        this.ballR = r;
+        this.drawBall = function () {
+            ctx.beginPath();
+            ctx.arc(this.ballX, this.ballY, this.ballR, 0, Math.PI * 2, false);
+            ctx.fillStyle = "black";
+            ctx.fill();
+            ctx.closePath();
+            if (this.ballX + dx > canvas.width - this.ballR || this.ballX + dx < this.ballR) {
+                dx = -dx;
+            }
+
+            if (this.ballY + dy < this.ballR) {
+                dy = -dy;
+            }
+
+            if (this.ballY + dy === 390) {
+                if (this.ballX > bar.barX && this.ballX < bar.barX + bar.barWidth) {
+                    dy = -dy;
+                    score++;
+                    ////////change speed/////////////
+                    if (speed > 0) {
+                        speed -= 2;
+                    }else {
+                        if (bar.width > 20){
+                            bar.barWidth -= 5;
+                        }
+                    }
+                }
+            }
+            if (this.ballY + dy > 440) {
+                clearInterval(game);
+                alert("GAME OVER");
+                alert("Your score = " + score);
+                document.location.reload();
+            }
+            this.ballX += dx;
+            this.ballY += dy;
+        }
+    };
+
+    var Bar = function (barX, barY, barWidth, barHeight, color) {
+        this.barX = barX;
+        this.barY = barY;
+        this.barWidth = barWidth;
+        this.barHeight = barHeight;
+        this.color = color;
+        this.drawBar = function () {
+            ctx.beginPath();
+            ctx.rect(this.barX, this.barY, this.barWidth, this.barHeight);
+            ctx.fillStyle = this.color;
+            ctx.fill();
+            ctx.closePath();
+            if (rightPressed && this.barX < canvas.width - this.barWidth) {
+                this.barX += 2;
+            } else if (leftPressed && this.barX > 0) {
+                this.barX -= 2;
+            }
+
+        }
+    };
+    ////////// khai bao //////////
+    var ball = new Ball(canvas.width / 2, canvas.height - 60, 10);
+    var bar = new Bar((canvas.width - 100) / 2, 400, 100, 10, "red");
+
+    //////////// draw/////////////////
+    function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ball.drawBall();
+        bar.drawBar();
+        if (score >= 10) {
+            canvas.style.background = "gray";
+            bar.color = "yellow";
+        }
+        if (score >= 20){
+            canvas.style.background = "red";
+            bar.color = "blue";
+        }
+        document.getElementById("scored").innerHTML = "Bạn đạt " + score + " điểm";
+    }
+
+    var game = setInterval(draw, speed);
+
+</script>
+</body>
+</html>
